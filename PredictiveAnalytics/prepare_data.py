@@ -14,11 +14,11 @@ def create_organized_splits():
     
     # Check if source exists
     if not os.path.exists(source_dir):
-        print(f"❌ Error: {source_dir} does not exist!")
+        print(f"Error: {source_dir} does not exist!")
         print("Please make sure you're in the correct directory")
         return
     
-    print("✅ Found training_set directory")
+    print("Found training_set directory")
     
     # Create output directories
     splits = ['train', 'validation', 'test']
@@ -28,9 +28,9 @@ def create_organized_splits():
         for class_name in classes:
             dir_path = os.path.join(output_dir, split, class_name)
             os.makedirs(dir_path, exist_ok=True)
-            print(f"📁 Created: {dir_path}")
+            print(f"Created: {dir_path}")
     
-    print("\n📊 Processing images...")
+    print("\nProcessing images...")
     
     # Process each class
     total_images = 0
@@ -38,25 +38,25 @@ def create_organized_splits():
         class_path = os.path.join(source_dir, class_name)
         
         if not os.path.exists(class_path):
-            print(f"❌ Error: {class_path} does not exist!")
+            print(f"Error: {class_path} does not exist!")
             continue
             
         # Get all image files
         image_files = [f for f in os.listdir(class_path) 
                       if f.lower().endswith(('.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'))]
         
-        print(f"📸 Found {len(image_files)} {class_name} images")
+        print(f"Found {len(image_files)} {class_name} images")
         total_images += len(image_files)
         
         if len(image_files) == 0:
-            print(f"⚠️  No images found in {class_path}")
+            print(f"No images found in {class_path}")
             continue
         
         # Split: 70% train, 15% validation, 15% test
         train_files, temp_files = train_test_split(image_files, test_size=0.3, random_state=42)
         val_files, test_files = train_test_split(temp_files, test_size=0.5, random_state=42)
         
-        print(f"   📋 Splitting: {len(train_files)} train, {len(val_files)} val, {len(test_files)} test")
+        print(f"   Splitting: {len(train_files)} train, {len(val_files)} val, {len(test_files)} test")
         
         # Copy files to respective directories
         copied_count = 0
@@ -78,11 +78,11 @@ def create_organized_splits():
             shutil.copy2(src, dst)
             copied_count += 1
         
-        print(f"   ✅ Copied {copied_count} {class_name} images")
+        print(f"   Copied {copied_count} {class_name} images")
     
-    print(f"\n🎯 Data preparation complete!")
-    print(f"📁 Organized data in: {output_dir}")
-    print(f"📊 Total images processed: {total_images}")
+    print(f"\nData preparation complete!")
+    print(f"Organized data in: {output_dir}")
+    print(f"Total images processed: {total_images}")
 
 def analyze_final_structure():
     """Check the final organized structure"""
@@ -93,7 +93,7 @@ def analyze_final_structure():
     base_path = "data/processed/train_val_test"
     
     if not os.path.exists(base_path):
-        print("❌ Processed data directory not found!")
+        print("Processed data directory not found!")
         return
     
     total_train = 0
@@ -110,7 +110,7 @@ def analyze_final_structure():
             malignant_count = len(os.listdir(malignant_path)) if os.path.exists(malignant_path) else 0
             total_split = benign_count + malignant_count
             
-            print(f"📊 {split.upper():>12}: {benign_count:>3} benign, {malignant_count:>3} malignant, {total_split:>3} total")
+            print(f"{split.upper():>12}: {benign_count:>3} benign, {malignant_count:>3} malignant, {total_split:>3} total")
             
             if split == 'train':
                 total_train = total_split
@@ -120,10 +120,10 @@ def analyze_final_structure():
                 total_test = total_split
     
     print("="*50)
-    print(f"📈 GRAND TOTAL: {total_train + total_val + total_test} images")
-    print(f"   → Train: {total_train} ({total_train/(total_train+total_val+total_test)*100:.1f}%)")
-    print(f"   → Validation: {total_val} ({total_val/(total_train+total_val+total_test)*100:.1f}%)")
-    print(f"   → Test: {total_test} ({total_test/(total_train+total_val+total_test)*100:.1f}%)")
+    print(f"GRAND TOTAL: {total_train + total_val + total_test} images")
+    print(f"   -> Train: {total_train} ({total_train/(total_train+total_val+total_test)*100:.1f}%)")
+    print(f"   -> Validation: {total_val} ({total_val/(total_train+total_val+total_test)*100:.1f}%)")
+    print(f"   -> Test: {total_test} ({total_test/(total_train+total_val+total_test)*100:.1f}%)")
 
 def check_original_data():
     """Check what's in the original data folder"""
@@ -139,17 +139,16 @@ def check_original_data():
         benign_count = len(os.listdir(benign_path)) if os.path.exists(benign_path) else 0
         malignant_count = len(os.listdir(malignant_path)) if os.path.exists(malignant_path) else 0
         
-        print(f"📁 Original training_set:")
-        print(f"   👶 Benign: {benign_count} images")
-        print(f"   🦠 Malignant: {malignant_count} images")
-        print(f"   📦 Total: {benign_count + malignant_count} images")
+        print(f"Original training_set:")
+        print(f"   Benign: {benign_count} images")
+        print(f"   Malignant: {malignant_count} images")
+        print(f"   Total: {benign_count + malignant_count} images")
     else:
-        print("❌ Original training_set not found!")
+        print("Original training_set not found!")
 
 if __name__ == "__main__":
     check_original_data()
     create_organized_splits()
     analyze_final_structure()
     
-    print("\n🎉 READY FOR NEXT STEP!")
-    print("👉 Now run: python train_traditional_ml.py")
+    

@@ -17,7 +17,7 @@ def extract_image_features(image_path):
     try:
         img = cv2.imread(image_path)
         if img is None:
-            print(f"⚠️ Could not load image: {image_path}")
+            print(f"Could not load image: {image_path}")
             return None
             
         # Convert to grayscale
@@ -55,12 +55,12 @@ def extract_image_features(image_path):
 
 def create_dataset():
     """Create dataset from processed images"""
-    print("📊 Creating dataset from images...")
+    print("Creating dataset from images...")
     
     base_path = "data/processed/train_val_test"
     
     if not os.path.exists(base_path):
-        print(f"❌ Data path not found: {base_path}")
+        print(f"Data path not found: {base_path}")
         return None, None, None, None
     
     data = []
@@ -79,20 +79,19 @@ def create_dataset():
         split_path = os.path.join(base_path, split)
         
         if not os.path.exists(split_path):
-            print(f"⚠️ Split folder not found: {split_path}")
+            print(f"Split folder not found: {split_path}")
             continue
             
         for class_name in ['benign', 'malignant']:
             class_path = os.path.join(split_path, class_name)
             
             if not os.path.exists(class_path):
-                print(f"⚠️ Class folder not found: {class_path}")
+                print(f"Class folder not found: {class_path}")
                 continue
                 
-            # ✅ UPDATED: INCLUDE ALL IMAGES (remove _mask filter)
+            # INCLUDE ALL IMAGES (remove _mask filter)
             image_files = [f for f in os.listdir(class_path) 
                           if f.lower().endswith(('.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'))]
-            # REMOVED: and '_mask' not in f
             
             print(f"   Processing {len(image_files)} {class_name} images from {split}...")
             
@@ -107,21 +106,21 @@ def create_dataset():
     
     # Convert to numpy arrays
     if not data:
-        print("❌ No images were processed!")
+        print("No images were processed!")
         return None, None, None, None
         
     X = np.array(data)
     y = np.array(labels)
     splits = np.array(split_info)
     
-    print(f"✅ Created dataset with {X.shape[0]} samples and {X.shape[1]} features")
-    print(f"📊 Class distribution: {np.sum(y==0)} benign, {np.sum(y==1)} malignant")
+    print(f"Created dataset with {X.shape[0]} samples and {X.shape[1]} features")
+    print(f"Class distribution: {np.sum(y==0)} benign, {np.sum(y==1)} malignant")
     
     return X, y, splits, feature_names
 
 def train_random_forest(X_train, y_train, X_val, y_val, feature_names):
     """Train and evaluate Random Forest model"""
-    print("\n🌲 Training Random Forest Classifier...")
+    print("\nTraining Random Forest Classifier...")
     
     # Create and train the model
     rf_model = RandomForestClassifier(
@@ -145,7 +144,7 @@ def train_random_forest(X_train, y_train, X_val, y_val, feature_names):
     train_f1 = f1_score(y_train, y_train_pred)
     val_f1 = f1_score(y_val, y_val_pred)
     
-    print("📈 Training Results:")
+    print("Training Results:")
     print(f"   Training Accuracy: {train_accuracy:.4f}")
     print(f"   Validation Accuracy: {val_accuracy:.4f}")
     print(f"   Training F1-Score: {train_f1:.4f}")
@@ -157,7 +156,7 @@ def train_random_forest(X_train, y_train, X_val, y_val, feature_names):
         'importance': rf_model.feature_importances_
     }).sort_values('importance', ascending=False)
     
-    print(f"\n🔝 Top 5 Most Important Features:")
+    print(f"\nTop 5 Most Important Features:")
     for i, row in feature_importance.head(5).iterrows():
         print(f"   {row['feature']}: {row['importance']:.4f}")
     
@@ -180,12 +179,12 @@ def evaluate_model(model, X_test, y_test, feature_names):
     accuracy = accuracy_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     
-    print(f"🎯 Test Set Performance:")
+    print(f"Test Set Performance:")
     print(f"   Accuracy: {accuracy:.4f}")
     print(f"   F1-Score: {f1:.4f}")
     
     # Detailed classification report
-    print(f"\n📊 Detailed Classification Report:")
+    print(f"\nDetailed Classification Report:")
     print(classification_report(y_test, y_pred, target_names=['Benign', 'Malignant']))
     
     # Confusion Matrix
@@ -242,17 +241,17 @@ def save_model_and_results(model, scaler, accuracy, f1, feature_names):
     })
     metrics_df.to_csv('results/performance_metrics.csv', index=False)
     
-    print(f"\n💾 Model and results saved!")
-    print(f"   📁 Model: models/random_forest_model.pkl")
-    print(f"   📊 Metrics: results/performance_metrics.csv")
-    print(f"   📈 Plots: results/confusion_matrix.png, results/feature_importance.png")
+    print(f"\nModel and results saved!")
+    print(f"   Model: models/random_forest_model.pkl")
+    print(f"   Metrics: results/performance_metrics.csv")
+    print(f"   Plots: results/confusion_matrix.png, results/feature_importance.png")
 
 def main():
     # Create dataset
     X, y, splits, feature_names = create_dataset()
     
     if X is None:
-        print("❌ Failed to create dataset. Cannot continue training.")
+        print("Failed to create dataset. Cannot continue training.")
         return
     
     # Split data
@@ -263,7 +262,7 @@ def main():
     X_train, X_val, X_test = X[train_mask], X[val_mask], X[test_mask]
     y_train, y_val, y_test = y[train_mask], y[val_mask], y[test_mask]
     
-    print(f"\n📊 Dataset Split:")
+    print(f"\nDataset Split:")
     print(f"   Training: {X_train.shape[0]} samples")
     print(f"   Validation: {X_val.shape[0]} samples")
     print(f"   Test: {X_test.shape[0]} samples")
@@ -271,7 +270,7 @@ def main():
     
     # Check if we have enough data
     if X_train.shape[0] == 0:
-        print("❌ No training data available!")
+        print("No training data available!")
         return
     
     # Scale features
@@ -289,10 +288,9 @@ def main():
     # Save everything
     save_model_and_results(model, scaler, accuracy, f1, feature_names)
     
-    print(f"\n🎉 TRAINING COMPLETE!")
-    print(f"📈 Final Test Accuracy: {accuracy:.4f}")
-    print(f"📈 Final Test F1-Score: {f1:.4f}")
-    print(f"\n🚀 Next: You can use the trained model for predictions!")
+    print(f"\nTRAINING COMPLETE!")
+    print(f"Final Test Accuracy: {accuracy:.4f}")
+    print(f"Final Test F1-Score: {f1:.4f}")
 
 if __name__ == "__main__":
     main()

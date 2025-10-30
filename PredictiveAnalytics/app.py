@@ -1,4 +1,4 @@
-# complete_breast_cancer_analysis.py
+
 import streamlit as st
 import joblib
 import numpy as np
@@ -21,30 +21,30 @@ def load_model():
         for path in possible_paths:
             if os.path.exists(path):
                 model_path = path
-                st.success(f"✅ Found model at: {path}")
+                #st.success(f"Found model at: {path}")
                 break
         
         if model_path is None:
-            st.error("❌ Model file not found in any expected location!")
-            st.info("Searching for model files...")
+            #st.error("Model file not found in any expected location!")
+            #st.info("Searching for model files...")
             for root, dirs, files in os.walk("."):
                 for file in files:
                     if file.endswith('.pkl'):
-                        st.write(f"📁 Found: {os.path.join(root, file)}")
+                        st.write(f"Found: {os.path.join(root, file)}")
             return None
         
         # Load the model
         model_data = joblib.load(model_path)
-        st.success("🎉 Model loaded successfully!")
+        #st.success("Model loaded successfully!")
         
         # Show actual model accuracy (80.95% not 95.91%)
         actual_accuracy = model_data.get('performance', {}).get('accuracy', 0.8095)
-        st.info(f"📊 Model Accuracy: {actual_accuracy*100:.2f}%")
+        #st.info(f"Model Accuracy: {actual_accuracy*100:.2f}%")
         
         return model_data
         
     except Exception as e:
-        st.error(f"❌ Error loading model: {str(e)}")
+        st.error(f"Error loading model: {str(e)}")
         import traceback
         st.code(traceback.format_exc())
         return None
@@ -64,7 +64,7 @@ def preprocess_any_image(image):
         else:
             gray = image_np
         
-        # ✅ FIX: Ensure data type is uint8 (not bool) before resize
+        # Ensure data type is uint8 (not bool) before resize
         if gray.dtype == bool:
             gray = gray.astype(np.uint8) * 255
         elif gray.dtype != np.uint8:
@@ -153,12 +153,12 @@ model_data = load_model()
 
 st.set_page_config(page_title="Breast Cancer Resource Allocation", page_icon="🏥", layout="wide")
 
-st.title("🏥 Breast Cancer Resource Allocation")
+st.title("Breast Cancer Resource Allocation")
 st.markdown("### Automated Medical Image Priority Classification")
 
 # Show model status
 if model_data is None:
-    st.error("🚨 **Model not loaded** - The system cannot make predictions")
+    st.error("Model not loaded - The system cannot make predictions")
     st.info("""
     **Troubleshooting:**
     - Make sure 'models/random_forest_model.pkl' exists in your repository
@@ -166,13 +166,13 @@ if model_data is None:
     - Verify the model file was committed and pushed to GitHub
     """)
 else:
-    st.success("✅ **Model loaded successfully** - Ready for predictions!")
+    st.success("Model loaded successfully - Ready for predictions!")
 
 # File upload section
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.subheader("📁 Upload Medical Image")
+    st.subheader("Upload Medical Image")
     uploaded_file = st.file_uploader("Choose breast cancer image...", 
                                    type=['png', 'jpg', 'jpeg', 'tif', 'tiff', 'bmp'],
                                    help="Upload ultrasound, mammography, or histopathology images")
@@ -181,7 +181,7 @@ with col1:
         try:
             # Display original image
             image = Image.open(uploaded_file)
-            st.image(image, caption="📷 Uploaded Image", width="stretch")
+            st.image(image, caption="Uploaded Image", width="stretch")
             
             # File info
             st.info(f"**Image Info:** {image.size[0]}x{image.size[1]} pixels | Format: {image.format} | Mode: {image.mode}")
@@ -191,11 +191,11 @@ with col1:
 
 with col2:
     if uploaded_file is not None and 'image' in locals():
-        st.subheader("🔍 Image Analysis")
+        st.subheader("Image Analysis")
         
-        if st.button("🎯 Analyze Image & Classify Priority", type="primary", use_container_width=True):
+        if st.button("Analyze Image & Classify Priority", type="primary", use_container_width=True):
             if model_data is not None:
-                with st.spinner("🔬 Analyzing image features..."):
+                with st.spinner("Analyzing image features..."):
                     # Extract features from uploaded image
                     features, processed_image = extract_robust_features(image)
                     
@@ -205,7 +205,7 @@ with col2:
                             quality_warnings = analyze_image_quality(features)
                             
                             if quality_warnings:
-                                st.warning("⚠️ **Image Quality Notice**")
+                                st.warning("Image Quality Notice")
                                 for warning in quality_warnings[:3]:
                                     st.write(f"- {warning}")
                                 st.info("Image characteristics differ from typical medical images")
@@ -220,13 +220,13 @@ with col2:
                             prediction = model_data['model'].predict(features_scaled)[0]
                             probability = model_data['model'].predict_proba(features_scaled)[0]
                             
-                            # ✅ CORRECT: Only 2 classes (LOW/HIGH)
+                            # Only 2 classes (LOW/HIGH)
                             priority_levels = {0: 'LOW', 1: 'HIGH'}
                             priority = priority_levels[prediction]
                             confidence = max(probability) * 100
                             
                             # Display feature analysis
-                            st.subheader("📊 Extracted Image Features")
+                            st.subheader("Extracted Image Features")
                             
                             col1, col2, col3 = st.columns(3)
                             with col1:
@@ -240,63 +240,63 @@ with col2:
                             with col3:
                                 st.metric("Texture Complexity", f"{features[13]:.1f}")
                                 st.metric("Aspect Ratio", f"{features[5]:.2f}")
-                                st.metric("Data Type", "✅ Supported")
+                                st.metric("Data Type", "Supported")
                             
                             # Display processed image
                             if processed_image is not None:
-                                with st.expander("🖼️ View Processed Image"):
+                                with st.expander("View Processed Image"):
                                     st.image(processed_image, caption="Processed Grayscale Image", width="stretch")
                             
                             # Display results
                             st.markdown("---")
-                            st.subheader("🎯 Classification Results")
+                            st.subheader("Classification Results")
                             
                             # Confidence indicator
                             if confidence < 60:
-                                st.warning("🔍 **Moderate Confidence** - Consider additional review")
+                                st.warning("Moderate Confidence - Consider additional review")
                             elif confidence > 85:
-                                st.success("🎯 **High Confidence Prediction**")
+                                st.success("High Confidence Prediction")
                             
                             # Priority card with color coding
                             if priority == "HIGH":
-                                st.error(f"## 🚨 HIGH PRIORITY")
+                                st.error("## HIGH PRIORITY")
                                 st.write(f"**Confidence: {confidence:.1f}%**")
                                 st.progress(confidence/100)
                                 
-                                st.write("**🩺 Clinical Assessment:**")
+                                st.write("**Clinical Assessment:**")
                                 st.write("- High malignancy probability detected")
                                 st.write("- Irregular texture patterns observed")
                                 st.write("- Urgent medical attention recommended")
                                 
-                                st.write("**📋 Immediate Actions:**")
-                                st.write("- 🚨 Immediate specialist consultation")
-                                st.write("- 📊 Priority diagnostic imaging")
-                                st.write("- 💊 Urgent treatment planning")
-                                st.write("- 🏥 Multi-disciplinary team review")
+                                st.write("**Immediate Actions:**")
+                                st.write("- Immediate specialist consultation")
+                                st.write("- Priority diagnostic imaging")
+                                st.write("- Urgent treatment planning")
+                                st.write("- Multi-disciplinary team review")
                                 
                             else:  # LOW priority
-                                st.success(f"## ✅ LOW PRIORITY")
+                                st.success("## LOW PRIORITY")
                                 st.write(f"**Confidence: {confidence:.1f}%**")
                                 st.progress(confidence/100)
                                 
-                                st.write("**🩺 Clinical Assessment:**")
+                                st.write("**Clinical Assessment:**")
                                 st.write("- Benign characteristics observed")
                                 st.write("- Regular texture patterns detected")
                                 st.write("- Low malignancy probability")
                                 
-                                st.write("**📋 Recommended Actions:**")
-                                st.write("- 📅 Routine monitoring (6-12 months)")
-                                st.write("- 🏥 Annual screening recommended")
-                                st.write("- 📚 Patient education")
-                                st.write("- 🌟 Regular follow-up")
+                                st.write("**Recommended Actions:**")
+                                st.write("- Routine monitoring (6-12 months)")
+                                st.write("- Annual screening recommended")
+                                st.write("- Patient education")
+                                st.write("- Regular follow-up")
                             
                             # Resource allocation impact
                             st.markdown("---")
-                            st.subheader("🏥 Resource Allocation Impact")
+                            st.subheader("Resource Allocation Impact")
                             
                             if priority == "HIGH":
                                 st.info("""
-                                **🔴 High Resource Requirements:**
+                                **High Resource Requirements:**
                                 - Urgent care pathway activation
                                 - Multi-disciplinary team review  
                                 - Priority diagnostic services
@@ -305,7 +305,7 @@ with col2:
                                 """)
                             else:
                                 st.info("""
-                                **🟢 Low Resource Requirements:**
+                                **Low Resource Requirements:**
                                 - Primary care follow-up
                                 - Routine screening services
                                 - Patient education materials
@@ -314,7 +314,7 @@ with col2:
                                 """)
                             
                             # Technical details
-                            with st.expander("🔧 Technical Details"):
+                            with st.expander("Technical Details"):
                                 st.write(f"**Raw Prediction:** {prediction}")
                                 st.write(f"**Probability Distribution:**")
                                 st.write(f"- Class 0 (LOW): {probability[0]:.3f} ({probability[0]*100:.1f}%)")
@@ -339,18 +339,18 @@ with col2:
                 st.error("Model not loaded - cannot make predictions")
 
 # Information section
-with st.expander("ℹ️ System Information & Instructions"):
+with st.expander("System Information & Instructions"):
     col_info1, col_info2 = st.columns(2)
     
     with col_info1:
         st.markdown("""
-        **📋 How to Use:**
+        **How to Use:**
         1. **Upload** a breast cancer medical image
         2. **Click** 'Analyze Image & Classify Priority'
         3. **Review** the automatic classification
         4. **Follow** recommended medical actions
         
-        **✅ Supported Image Types:**
+        **Supported Image Types:**
         - Ultrasound images
         - Mammography scans  
         - Histopathology slides
@@ -360,26 +360,26 @@ with st.expander("ℹ️ System Information & Instructions"):
     
     with col_info2:
         st.markdown("""
-        **🔧 Technical Specifications:**
+        **Technical Specifications:**
         - **Model**: Random Forest Classifier
         - **Accuracy**: 80.95%
         - **Training Data**: 1,112 medical images
         - **Features**: 14 image analysis features
         - **Classes**: LOW vs HIGH priority
         
-        **⚠️ Important Notes:**
+        **Important Notes:**
         - This is a prioritization tool, not a diagnostic system
         - Always consult healthcare professionals
         - Results should guide, not replace, medical judgment
         """)
 
-# Quick test section
-with st.expander("🧪 Test with Your Dataset"):
+
+with st.expander("Test with Your Dataset"):
     st.markdown("""
     **Expected Results with Your Data:**
     
-    - **`data/training_set/benign/`** images → ✅ **LOW PRIORITY**
-    - **`data/training_set/malignant/`** images → 🚨 **HIGH PRIORITY**
+    - **`data/training_set/benign/`** images -> **LOW PRIORITY**
+    - **`data/training_set/malignant/`** images -> **HIGH PRIORITY**
     
     **Test Procedure:**
     1. Navigate to your dataset folder
@@ -391,13 +391,13 @@ with st.expander("🧪 Test with Your Dataset"):
 # Footer
 st.markdown("---")
 st.caption("""
-🎯 **Breast Cancer Resource Allocation System** | 
-✅ **Improved Model Loading** | 
-🏥 **AI-Powered Medical Priority Classification** |
-📊 **80.95% Model Accuracy**
+**Breast Cancer Resource Allocation System** | 
+**Improved Model Loading** | 
+**AI-Powered Medical Priority Classification** |
+**80.95% Model Accuracy**
 """)
 
-# Add reload button for testing
-if st.sidebar.button("🔄 Clear Cache & Reload"):
+
+if st.sidebar.button("Clear Cache & Reload"):
     st.cache_resource.clear()
     st.rerun()
