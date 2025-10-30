@@ -1,19 +1,25 @@
 # Breast Cancer Resource Allocation - Predictive Analytics
 
 ## 📋 Project Overview
-A machine learning system that predicts breast cancer case priorities (High/Low) for efficient medical resource allocation using the Breast Cancer Wisconsin dataset.
+A machine learning system that predicts breast cancer case priorities (High/Low) for efficient medical resource allocation using medical image analysis.
 
-**🎯 Goal:** Preprocess data, train Random Forest model, predict priority levels, and evaluate performance.
+**🎯 Live Demo:** [https://charllote122-ai-assignment-week4-predictiveanalyticsapp-q2okrr.streamlit.app/](https://charllote122-ai-assignment-week4-predictiveanalyticsapp-q2okrr.streamlit.app/)
+
+**🎯 Goal:** Preprocess medical images, train Random Forest model, predict priority levels, and deploy as a web application for healthcare resource optimization.
 
 ## 📊 Performance Results
-- **Accuracy:** 95.91%
-- **F1-Score:** 95.05% 
-- **High Priority Recall:** 97.0%
-- **Low Priority Recall:** 99.0%
+- **Accuracy:** 80.95%
+- **F1-Score:** 62.79%
+- **Dataset:** 1,112 medical images (791 benign, 321 malignant)
+- **High Priority Recall:** 55.1%
+- **Low Priority Recall:** 91.6%
 
 ## 🚀 Quick Start
 
-### 1. Run the Web Application
+### 1. Use the Live Web Application
+🌐 **Live Demo:** [Access the deployed app here](https://charllote122-ai-assignment-week4-predictiveanalyticsapp-q2okrr.streamlit.app/)
+
+### 2. Run Locally
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -21,68 +27,27 @@ pip install -r requirements.txt
 # Launch the web app
 streamlit run app.py
 
-📁 Project Structure
-text
-├── data/                           # Breast Cancer Wisconsin dataset
-├── models/                         # Trained Random Forest model
-├── results/                        # Performance metrics & plots
-├── train_traditional_ml.py         # Model training script
-├── evaluate_model.py               # Model evaluation
-├── prepare_data.py                 # Data preprocessing
-├── app.py                          # Web interface
-└── requirements.txt                # Python dependencies
-🛠️ Technical Implementation
-Data Preprocessing
-Loaded Breast Cancer Wisconsin dataset (569 samples, 30 features)
+# Prepare data splits
+python prepare_data.py
 
-Created priority labels (High/Medium/Low) from diagnostic data
+# Train Random Forest model
+python train_traditional_ml.py
 
-Train/validation/test split (70%/15%/15%)
+# Evaluate model performance
+python prepare_data
+python train_traditional_ml.py
+python evaluate_model.py
 
-Feature scaling with StandardScaler
-
-Model Training
-Algorithm: Random Forest Classifier
-
-Hyperparameters: 100 estimators, balanced class weights
-
-Validation: Stratified k-fold cross-validation
-
-Priority System
-High Priority: Malignant cases requiring immediate attention
-
-Low Priority: Benign cases for routine follow-up
-
-🌐 Web Application Features
-Upload and analyze medical images
-
-Automatic feature extraction (14 image features)
-
-Real-time priority classification
-
-Confidence scores and medical recommendations
-
-Resource allocation suggestions
-
-📈 Key Deliverables ✅
-Data Preprocessing - Cleaned, labeled, split data
-
-Model Training - Random Forest with 95.91% accuracy
-
-Evaluation Metrics - Accuracy & F1-score reported
-
-Jupyter Notebook - Complete analysis pipeline
-
-Resource Allocation - Priority-based classification system
-
-🏥 Business Impact
-Automated triage for 171 test cases
-
-98.3% accurate high-priority identification
-
-Efficient resource allocation based on predicted risk
-
-Reduced manual screening workload
-
-⚠️ Medical Disclaimer
-This system is designed for resource allocation prioritization and should not be used as a diagnostic tool. Always consult healthcare professionals for medical decisions.
+PredictiveAnalytics/
+├── data/
+│   ├── training_set/              # Original medical images
+│   └── processed/train_val_test/  # Processed data splits
+├── models/
+│   └── random_forest_model.pkl    # Trained model (80.95% accuracy)
+├── results/                       # Performance metrics & plots
+├── app.py                         # Main web application
+├── train_traditional_ml.py        # Model training script
+├── evaluate_model.py              # Model evaluation & analysis
+├── prepare_data.py                # Data preprocessing & splitting
+├── requirements.txt               # Python dependencies
+└── packages.txt                   # System dependencies (OpenCV)
