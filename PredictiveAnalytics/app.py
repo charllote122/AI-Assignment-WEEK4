@@ -10,10 +10,43 @@ import os
 @st.cache_resource
 def load_model():
     try:
-        model_data = joblib.load('models/random_forest_model.pkl')
+        # Use different possible paths
+        possible_paths = [
+            'models/random_forest_model.pkl',
+            './models/random_forest_model.pkl',
+            'PredictiveAnalytics/models/random_forest_model.pkl'
+        ]
+        
+        model_path = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                model_path = path
+                st.success(f"✅ Found model at: {path}")
+                break
+        
+        if model_path is None:
+            st.error("❌ Model file not found in any expected location!")
+            st.info("Searching for model files...")
+            for root, dirs, files in os.walk("."):
+                for file in files:
+                    if file.endswith('.pkl'):
+                        st.write(f"📁 Found: {os.path.join(root, file)}")
+            return None
+        
+        # Load the model
+        model_data = joblib.load(model_path)
+        st.success("🎉 Model loaded successfully!")
+        
+        # Show actual model accuracy (80.95% not 95.91%)
+        actual_accuracy = model_data.get('performance', {}).get('accuracy', 0.8095)
+        st.info(f"📊 Model Accuracy: {actual_accuracy*100:.2f}%")
+        
         return model_data
+        
     except Exception as e:
-        st.error(f"Error loading model: {e}")
+        st.error(f"❌ Error loading model: {str(e)}")
+        import traceback
+        st.code(traceback.format_exc())
         return None
 
 def preprocess_any_image(image):
@@ -115,12 +148,25 @@ def analyze_image_quality(features):
     
     return warnings
 
+# Load model at startup
 model_data = load_model()
 
 st.set_page_config(page_title="Breast Cancer Resource Allocation", page_icon="🏥", layout="wide")
 
 st.title("🏥 Breast Cancer Resource Allocation")
 st.markdown("### Automated Medical Image Priority Classification")
+
+# Show model status
+if model_data is None:
+    st.error("🚨 **Model not loaded** - The system cannot make predictions")
+    st.info("""
+    **Troubleshooting:**
+    - Make sure 'models/random_forest_model.pkl' exists in your repository
+    - Check the file path is correct
+    - Verify the model file was committed and pushed to GitHub
+    """)
+else:
+    st.success("✅ **Model loaded successfully** - Ready for predictions!")
 
 # File upload section
 col1, col2 = st.columns([1, 1])
@@ -274,7 +320,10 @@ with col2:
                                 st.write(f"- Class 0 (LOW): {probability[0]:.3f} ({probability[0]*100:.1f}%)")
                                 st.write(f"- Class 1 (HIGH): {probability[1]:.3f} ({probability[1]*100:.1f}%)")
                                 st.write(f"**Features Used:** {len(features)}")
-                                st.write(f"**Model Accuracy:** 95.91%")
+                                
+                                # Show actual model accuracy
+                                actual_accuracy = model_data.get('performance', {}).get('accuracy', 0.8095)
+                                st.write(f"**Model Accuracy:** {actual_accuracy*100:.2f}%")
                                 
                         except Exception as e:
                             st.error(f"Prediction error: {e}")
@@ -287,7 +336,7 @@ with col2:
                     else:
                         st.error("Could not extract features from this image")
             else:
-                st.error("Model not loaded properly - check if 'models/random_forest_model.pkl' exists")
+                st.error("Model not loaded - cannot make predictions")
 
 # Information section
 with st.expander("ℹ️ System Information & Instructions"):
@@ -313,7 +362,7 @@ with st.expander("ℹ️ System Information & Instructions"):
         st.markdown("""
         **🔧 Technical Specifications:**
         - **Model**: Random Forest Classifier
-        - **Accuracy**: 95.91%
+        - **Accuracy**: 80.95%
         - **Training Data**: 1,112 medical images
         - **Features**: 14 image analysis features
         - **Classes**: LOW vs HIGH priority
@@ -343,9 +392,9 @@ with st.expander("🧪 Test with Your Dataset"):
 st.markdown("---")
 st.caption("""
 🎯 **Breast Cancer Resource Allocation System** | 
-✅ **Data Type Issues Fixed** | 
+✅ **Improved Model Loading** | 
 🏥 **AI-Powered Medical Priority Classification** |
-📊 **95.91% Model Accuracy**
+📊 **80.95% Model Accuracy**
 """)
 
 # Add reload button for testing
