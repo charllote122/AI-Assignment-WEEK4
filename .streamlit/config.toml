@@ -1,0 +1,10 @@
+[server]
+headless = true
+enableCORS = false
+
+[browser]
+serverAddress = "0.0.0.0"
+
+# Point to the requirements.txt inside your project folder
+[deployment]
+dependenciesFile = "Predictive Analytics for Resource Allocation/requirements.txt"
