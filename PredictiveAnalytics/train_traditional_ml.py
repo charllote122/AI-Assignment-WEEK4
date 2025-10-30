@@ -17,6 +17,7 @@ def extract_image_features(image_path):
     try:
         img = cv2.imread(image_path)
         if img is None:
+            print(f"⚠️ Could not load image: {image_path}")
             return None
             
         # Convert to grayscale
@@ -57,7 +58,10 @@ def create_dataset():
     print("📊 Creating dataset from images...")
     
     base_path = "data/processed/train_val_test"
-    splits = ['train', 'validation', 'test']
+    
+    if not os.path.exists(base_path):
+        print(f"❌ Data path not found: {base_path}")
+        return None, None, None, None
     
     data = []
     labels = []
@@ -69,17 +73,26 @@ def create_dataset():
         'sobelx_mean', 'sobely_mean', 'sobelx_std', 'sobely_std'
     ]
     
+    splits = ['train', 'validation', 'test']
+    
     for split in splits:
         split_path = os.path.join(base_path, split)
         
+        if not os.path.exists(split_path):
+            print(f"⚠️ Split folder not found: {split_path}")
+            continue
+            
         for class_name in ['benign', 'malignant']:
             class_path = os.path.join(split_path, class_name)
             
             if not os.path.exists(class_path):
+                print(f"⚠️ Class folder not found: {class_path}")
                 continue
                 
+            # ✅ UPDATED: INCLUDE ALL IMAGES (remove _mask filter)
             image_files = [f for f in os.listdir(class_path) 
                           if f.lower().endswith(('.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'))]
+            # REMOVED: and '_mask' not in f
             
             print(f"   Processing {len(image_files)} {class_name} images from {split}...")
             
@@ -93,11 +106,17 @@ def create_dataset():
                     split_info.append(split)
     
     # Convert to numpy arrays
+    if not data:
+        print("❌ No images were processed!")
+        return None, None, None, None
+        
     X = np.array(data)
     y = np.array(labels)
     splits = np.array(split_info)
     
     print(f"✅ Created dataset with {X.shape[0]} samples and {X.shape[1]} features")
+    print(f"📊 Class distribution: {np.sum(y==0)} benign, {np.sum(y==1)} malignant")
+    
     return X, y, splits, feature_names
 
 def train_random_forest(X_train, y_train, X_val, y_val, feature_names):
@@ -232,6 +251,10 @@ def main():
     # Create dataset
     X, y, splits, feature_names = create_dataset()
     
+    if X is None:
+        print("❌ Failed to create dataset. Cannot continue training.")
+        return
+    
     # Split data
     train_mask = splits == 'train'
     val_mask = splits == 'validation'
@@ -245,6 +268,11 @@ def main():
     print(f"   Validation: {X_val.shape[0]} samples")
     print(f"   Test: {X_test.shape[0]} samples")
     print(f"   Features: {X_train.shape[1]}")
+    
+    # Check if we have enough data
+    if X_train.shape[0] == 0:
+        print("❌ No training data available!")
+        return
     
     # Scale features
     scaler = StandardScaler()
